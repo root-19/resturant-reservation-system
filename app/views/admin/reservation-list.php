@@ -29,22 +29,67 @@ include "layout/sidebar.php";
         <tbody>
           <?php if (count($reservations) > 0): ?>
             <?php foreach ($reservations as $index => $row): ?>
-              <tr class="text-center border-t">
-                <td class="px-4 py-2 border"><?php echo $index + 1; ?></td>
-                <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['name']); ?></td>
-                <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['email']); ?></td>
-                <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['table_size']); ?> Pax</td>
-                <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['day']); ?></td>
-                <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['time']); ?></td>
-                <td class="px-4 py-2 border">
-                  <?php if (!empty($row['image'])): ?>
-                    <img src="../uploads/<?php echo $row['image']; ?>" alt="Image" class="h-12 mx-auto rounded">
-                  <?php else: ?>
-                    <span class="text-gray-400 italic">None</span>
-                  <?php endif; ?>
-                </td>
+  <tr class="text-center border-t bg-gray-50">
+    <td class="px-4 py-2 border"><?php echo $index + 1; ?></td>
+    <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['name']); ?></td>
+    <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['email']); ?></td>
+    <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['table_size']); ?> Pax</td>
+    <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['day']); ?></td>
+    <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['time']); ?></td>
+    <td class="px-4 py-2 border">
+    
+    <?php if (!empty($row['image'])): ?>
+  <img src="../../../uploads/<?php echo htmlspecialchars(basename($row['image'])); ?>" alt="Image" class="h-12 mx-auto rounded">
+<?php else: ?>
+  <span class="text-gray-400 italic">No image</span>
+<?php endif; ?>
+
+    </td>
+  </tr>
+
+  <!-- Cart items for this reservation -->
+  <?php
+    $stmtItems = $pdo->prepare("
+      SELECT ci.*, mi.food_name, mi.price 
+      FROM cart_items ci 
+      JOIN menu_items mi ON ci.menu_item_id = mi.id 
+      WHERE ci.reservation_id = ?
+    ");
+    $stmtItems->execute([$row['id']]);
+    $cartItems = $stmtItems->fetchAll(PDO::FETCH_ASSOC);
+  ?>
+
+  <?php if (count($cartItems) > 0): ?>
+    <tr>
+      <td colspan="7" class="px-4 py-2 bg-white border">
+        <div class="text-left font-medium mb-2 text-blue-600">Ordered Items:</div>
+        <table class="w-full text-sm border border-gray-300">
+          <thead class="bg-gray-200 text-gray-800">
+            <tr>
+              <th class="px-2 py-1 border">#</th>
+              <th class="px-2 py-1 border">Food Name</th>
+              <th class="px-2 py-1 border">Price</th>
+              <th class="px-2 py-1 border">Quantity</th>
+              <th class="px-2 py-1 border">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php foreach ($cartItems as $itemIndex => $item): ?>
+              <tr class="text-center">
+                <td class="px-2 py-1 border"><?php echo $itemIndex + 1; ?></td>
+                <td class="px-2 py-1 border"><?php echo htmlspecialchars($item['food_name']); ?></td>
+                <td class="px-2 py-1 border">₱<?php echo number_format($item['price'], 2); ?></td>
+                <td class="px-2 py-1 border"><?php echo $item['quantity']; ?></td>
+                <td class="px-2 py-1 border">₱<?php echo number_format($item['total_price'], 2); ?></td>
               </tr>
             <?php endforeach; ?>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+  <?php endif; ?>
+<?php endforeach; ?>
+
           <?php else: ?>
             <tr>
               <td colspan="7" class="text-center py-6 text-gray-500">No reservations found.</td>

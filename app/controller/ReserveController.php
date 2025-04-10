@@ -1,14 +1,15 @@
 <?php
 
-
 require_once __DIR__ . '/../models/Reservation.php';
 require_once __DIR__ . '/../../config/database.php';
 
 class ReservationController {
     private $reservationModel;
+    private $pdo;
 
     public function __construct($pdo) {
         $this->reservationModel = new Reservation($pdo);
+        $this->pdo = $pdo;
     }
 
     public function handleReservation() {
@@ -35,11 +36,39 @@ class ReservationController {
                 }
             }
 
-            $this->reservationModel->createReservation($tableSize, $day, $time, $name, $email, $imagePath);
+            // Create the reservation and get its ID
+            $reservationId = $this->reservationModel->createReservation($tableSize, $day, $time, $name, $email, $imagePath);
 
-            header("Location: menu.php");
-        
+            // Insert cart items into the database, linking them to the new reservation
+            if (!empty($_SESSION['cart'])) {
+                foreach ($_SESSION['cart'] as $cartItem) {
+                    $menuItemId = $cartItem['id'];
+                    $quantity = $cartItem['quantity'];
+                    $totalPrice = $cartItem['price'] * $quantity;
+
+                    // Insert into `cart_items` table
+                    $stmt = $this->pdo->prepare("INSERT INTO cart_items (reservation_id, menu_item_id, quantity, total_price) VALUES (?, ?, ?, ?)");
+                    $stmt->execute([$reservationId, $menuItemId, $quantity, $totalPrice]);
+                }
+
+                // Clear the cart after processing
+                unset($_SESSION['cart']);
+            }
+
+            // Redirect to the reservation success page or wherever appropriate
+            header("Location: " . strtok($_SERVER["REQUEST_URI"], '?'));
             exit;
         }
     }
 }
+?>
+<!-- 
+CREATE TABLE `cart_items` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `reservation_id` INT NOT NULL,
+    `menu_item_id` INT NOT NULL,
+    `quantity` INT NOT NULL,
+    `total_price` DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (`reservation_id`) REFERENCES `reservations`(`id`),
+    FOREIGN KEY (`menu_item_id`) REFERENCES `menu`(`id`)
+); -->

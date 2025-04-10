@@ -1,7 +1,5 @@
 <?php
 
-
-
 class Reservation {
     private $pdo;
 
@@ -14,11 +12,11 @@ class Reservation {
             INSERT INTO reservations (table_size, day, time, name, email, image_path)
             VALUES (?, ?, ?, ?, ?, ?)
         ");
-        return $stmt->execute([$table_size, $day, $time, $name, $email, $image_path]);
-    }
+        $stmt->execute([$table_size, $day, $time, $name, $email, $image_path]);
 
-    public function getAvailableTables() {
-        // Optional: Add logic if you want to check availability
+        // Get the last inserted reservation ID
+        $reservation_id = $this->pdo->lastInsertId();
+        
+        return $reservation_id;  // Return reservation ID to link cart items
     }
 }
-
