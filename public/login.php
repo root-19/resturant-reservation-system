@@ -3,84 +3,77 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Welcome to Root-Dev</title>
+  <title>Restaurant Booking System</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .typewriter-text::after {
-      content: '|';
-      animation: blink 1s infinite;
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0; }
-    }
-
-    .full-height {
-      height: 100vh;
-    }
-  </style>
 </head>
-<body class="bg-black text-white">
+<body class="bg-pink-100 min-h-screen font-sans">
 
-  <!-- Welcome Section -->
-  <div class="flex items-center justify-center full-height">
-    <div class="text-center px-6">
-      <h1 class="text-6xl font-bold mb-6">
-        <span class="text-red-600">Root-Dev</span> PHP Framework
+  <!-- Top Navbar -->
+  <nav class="bg-red-600 text-white flex items-center justify-between px-6 py-4">
+    <div class="flex items-center space-x-2 text-xl font-bold">
+      <span>🍴MISAKI BISTRO</span>
+    </div>
+    <ul class="flex space-x-6 text-sm">
+      <li><a href="#" class="hover:underline">Reservations</a></li>
+      <li><a href="#" class="hover:underline">New Reservation</a></li>
+      <li><a href="#" class="hover:underline">Search</a></li>
+      <li><button onclick="goToLogin()" class="hover:underline">Login</button></li>
+    </ul>
+  </nav>
+
+  <!-- Hero Section (Text + Image) -->
+  <div id="heroSection" class="flex flex-col md:flex-row items-center justify-between px-10 py-20 transition-all duration-500">
+    <!-- Text Section -->
+    <div class="md:w-1/2 text-center md:text-left mb-10 md:mb-0">
+      <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight mt-20">
+        STRAIGHT TO THE POINT<br />
+        RESTAURANT BOOKING<br />
+        SYSTEM
       </h1>
 
-      <p id="typewriter" class="text-xl text-gray-300 mb-10 typewriter-text"></p>
+      <!-- Buttons -->
+      <div class="mt-20 flex flex-col sm:flex-row justify-center md:justify-start space-y-4 sm:space-y-0 sm:space-x-4">
+        <button onclick="src()" class="bg-black text-white px-6 py-3 rounded font-semibold hover:bg-gray-800 transition">
+          New Reservation
+        </button>
+        <input type="text" placeholder="Search" class="px-6 py-3 rounded border border-gray-400 w-full sm:w-auto" />
+      </div>
+    </div>
 
-      <button onclick="goToLogin()" class="inline-block bg-red-600 hover:bg-red-700 text-white text-lg font-medium px-8 py-3 rounded-full transition">
-        Continue →
-      </button>
+    <!-- Image Section -->
+    <div class="md:w-1/2 flex justify-center">
+      <img src="../resources/image/imagefront.webp" alt="Food Platter" class="max-w-sm rounded-lg shadow-lg" />
     </div>
   </div>
 
-  <!-- Login Form Section -->
-  <div id="loginForm" class="hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-800 text-white w-full max-w-md p-10 rounded-lg shadow-xl">
-    <div class="text-gray-800 p-10 rounded-lg shadow-xl w-full">
-      <h2 class="text-3xl font-bold mb-4 text-center text-white">Login</h2>
-      
-      <!-- Error Message -->
-      <?php if (isset($error)) { echo "<p class='text-red-500 text-center'>$error</p>"; } ?>
+  <!-- Login Form -->
+  <div id="loginForm" class="hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-800 text-white w-full max-w-md p-10 rounded-lg shadow-xl z-50">
+    <h2 class="text-3xl font-bold mb-4 text-center">Login</h2>
+    
+    <!-- Error Message -->
+    <?php if (isset($error)) { echo "<p class='text-red-500 text-center'>$error</p>"; } ?>
 
-      <form method="POST" action="/login">
-        <label class="block text-lg text-white">Email:</label>
-        <input type="email" name="email" class="w-full p-3 mb-4 border border-gray-300 rounded" required>
+    <form method="POST" action="/login">
+      <label class="block text-lg">Email:</label>
+      <input type="email" name="email" class="w-full p-3 mb-4 border border-gray-300 rounded text-black" required>
 
-        <label class="block text-lg text-white">Password:</label>
-        <input type="password" name="password" class="w-full p-3 mb-6 border border-gray-300 rounded" required>
+      <label class="block text-lg">Password:</label>
+      <input type="password" name="password" class="w-full p-3 mb-6 border border-gray-300 rounded text-black" required>
 
-        <button type="submit" class="w-full bg-red-600 text-white py-3 rounded-full hover:bg-red-700 transition">
-          Login
-        </button>
-      </form>
-
-      <p class="text-center mt-4 text-white">Don't have an account? <a href="/register" class="text-red-600 hover:text-red-700">Register here</a></p>
-    </div>
+      <button type="submit" class="w-full bg-red-600 text-white py-3 rounded-full hover:bg-red-700 transition">
+        Login
+      </button>
+    </form>
   </div>
 
   <script>
-    const text = "Why settle for the old ways? Start better with PHP and build modern web apps faster, easier, and cleaner — only with Root-Dev.";
-    const element = document.getElementById("typewriter");
-    let i = 0;
-
-    function type() {
-      if (i < text.length) {
-        element.innerHTML += text.charAt(i);
-        i++;
-        setTimeout(type, 45);
-      }
+    function goToLogin() {
+      document.getElementById('heroSection').classList.add('hidden');
+      document.getElementById('loginForm').classList.remove('hidden');
     }
 
-    window.onload = type;
-
-    function goToLogin() {
-      // Hide the welcome text and show the login form
-      document.querySelector('.text-center').classList.add('hidden');
-      document.getElementById('loginForm').classList.remove('hidden');
+    function src() {
+      window.location.href = "/menu";
     }
   </script>
 

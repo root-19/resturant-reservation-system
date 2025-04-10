@@ -13,18 +13,25 @@ $routes = [
     '/login' => [AuthController::class, 'login', false],
     '/logout' => [AuthController::class, 'logout', true],
     '/register' => [AuthController::class, 'register', false],
+    
+    // Public pages
+    '/menu' => ['view', 'menu', false],
+    '/reservation' => ['view', 'reservation', false],
+
 
     // Routes accessible to 'user'
     '/dashboard' => ['view', 'dashboard', true, 'user'],
-    '/home' => ['view', 'home', true, 'user'],
+    '/create-menu' => ['view', 'create-menu', true, 'user'],
+    '/menu-list' => ['view', 'menu-list', true, 'user'],
+
     '/about' => ['view', 'about', true, 'user'],
     '/contact' => ['view', 'contact', true, 'user'],
 
     // Routes accessible to 'admin'
     '/admin/dashboard' => ['view', 'admin/dashboard', true, 'admin'],
-    '/admin/home' => ['view', 'admin/home', true, 'admin'],
-    '/admin/about' => ['view', 'admin/about', true, 'admin'],
-    '/admin/contact' => ['view', 'admin/contact', true, 'admin'],
+    '/admin/create-menu' => ['view', 'admin/create-menu', true, 'admin'],
+    '/admin/menu-list' => ['view', 'admin/menu-list', true, 'admin'],
+    '/admin/reservation-list' => ['view', 'admin/reservation-list', true, 'admin'],
 ];
 
 // Get the current path

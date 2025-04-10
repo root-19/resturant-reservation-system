@@ -74,7 +74,7 @@ switch ($choice) {
         $dbConfig = [
             "driver" => "mysql",
             "host" => "localhost",
-            "dbname" => "framework",
+            "dbname" => "restaurant",
             "username" => "root",
             "password" => "",
             "charset" => "utf8mb4"

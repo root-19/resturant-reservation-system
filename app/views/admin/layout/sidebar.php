@@ -18,7 +18,6 @@
         <a href="/admin/dashbaord" class="hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">Admin Home</a>
         <a href="/admin/create-menu" class="hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">Create menu</a>
         <a href="/admin/menu-list" class="hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">Menu-list</a>
-
         <a href="/admin/reservation-list" class="hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">reservation</a>
         <a href="/logout" class="hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">logout</a>  
     </nav>

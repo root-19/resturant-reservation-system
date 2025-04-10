@@ -58,6 +58,7 @@ Generated files will go into their respective folders:
 ### 2. 🧱 Create a Migration File (for Table Creation)
 
 Manually create a migration file inside the `/migrations/` folder.
+php cli.php make:migration create_students_table
 
 Example file: `migrations/2025_04_04_184533_create_faculty_table.php`
 
