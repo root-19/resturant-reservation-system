@@ -1,4 +1,4 @@
-# Lightweight PHP MVC Framework (Custom Laravel-style)
+<!-- # Lightweight PHP MVC Framework (Custom Laravel-style)
 
 This is a lightweight PHP MVC project with a simple CLI for generating files and managing database tables (migrations).
 
@@ -143,4 +143,4 @@ class Database {
 ## 📌 License
 
 This is a custom educational framework inspired by Laravel. Not for production use.
-
+ -->
