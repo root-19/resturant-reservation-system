@@ -15,13 +15,12 @@
     <!-- suer Links -->
     <?php if ($_SESSION['role'] === 'admin'): ?>
       <nav class="flex flex-col space-y-4">
-        <a href="/admin/dashbaord" class="hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">Admin Home</a>
+      <a href="/admin/dashboard" class="hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">Home</a>
         <a href="/admin/create-menu" class="hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">Create menu</a>
-        <a href="/admin/menu-list" class="hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">Menu-list</a>
-        <a href="/admin/reservation-list" class="hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">reservation</a>
-        <a href="/admin/resturant-map" class="hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">resturant map</a>
-        <a href="/admin/done-reservation" class="hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">done-reservation</a>
-
+        <a href="/admin/menu-list" class="hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">List of Menu</a>
+        <a href="/admin/reservation-list" class="hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">Reservation</a>
+        <a href="/admin/resturant-map" class="hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">Resturant Map</a>
+        <a href="/admin/done-reservation" class="hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">Done-Reservation</a> 
 
         <a href="/logout" class="hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">logout</a>  
     </nav>

@@ -10,16 +10,18 @@
 
   <!-- Top Navbar -->
   <nav class="bg-red-600 text-white flex items-center justify-between px-6 py-4">
-    <div class="flex items-center space-x-2 text-xl font-bold">
-      <span>🍴MISAKI BISTRO</span>
-    </div>
-    <ul class="flex space-x-6 text-sm">
-      <li><a href="#" class="hover:underline">Reservations</a></li>
-      <li><a href="#" class="hover:underline">New Reservation</a></li>
-      <li><a href="#" class="hover:underline">Search</a></li>
-      <li><button onclick="goToLogin()" class="hover:underline">Login</button></li>
-    </ul>
-  </nav>
+  <div class="flex items-center space-x-2 text-xl font-bold">
+    <img src="../resources/image/logo.jpg" alt="Logo" class="h-8 w-8 rounded-full" />
+    <span>MISAKI BISTRO</span>
+  </div>
+  <ul class="flex space-x-6 text-sm">
+    <!-- <li><a href="#" class="hover:underline">Reservations</a></li>
+    <li><a href="#" class="hover:underline">New Reservation</a></li>
+    <li><a href="#" class="hover:underline">Search</a></li> -->
+    <li><button onclick="goToLogin()" class="hover:underline">Login</button></li>
+  </ul>
+</nav>
+
 
   <!-- Hero Section (Text + Image) -->
   <div id="heroSection" class="flex flex-col md:flex-row items-center justify-between px-10 py-20 transition-all duration-500">
@@ -36,7 +38,7 @@
         <button onclick="src()" class="bg-black text-white px-6 py-3 rounded font-semibold hover:bg-gray-800 transition">
           New Reservation
         </button>
-        <input type="text" placeholder="Search" class="px-6 py-3 rounded border border-gray-400 w-full sm:w-auto" />
+        <!-- <input type="text" placeholder="Search" class="px-6 py-3 rounded border border-gray-400 w-full sm:w-auto" /> -->
       </div>
     </div>
 

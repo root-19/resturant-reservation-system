@@ -1,5 +1,8 @@
 <?php
 require_once __DIR__ . '/../../../config/database.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+require __DIR__ . '/../../../vendor/autoload.php'; 
 
 $pdo = Database::connect();
 
@@ -20,8 +23,82 @@ $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
 $reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $reservationId = $_POST['id'];
+    $email = $_POST['email'];
+    $name = $_POST['name'];
+
+    if (isset($_POST['accept'])) {
+        $tableNumber = rand(1, 20); // Random table number
+
+        // Update reservation to assign table number
+        $updateStmt = $pdo->prepare("UPDATE reservations SET info = 'accepted', table_number = ? WHERE id = ?");
+        $updateStmt->execute([$tableNumber, $reservationId]);
+
+        $subject = "Reservation Accepted";
+        $message = "Hi $name,\n\nYour reservation has been accepted. Your table number is: $tableNumber. We look forward to serving you!";
+    } elseif (isset($_POST['reject'])) {
+        $updateStmt = $pdo->prepare("UPDATE reservations SET info = 'rejected' WHERE id = ?");
+        $updateStmt->execute([$reservationId]);
+
+        $subject = "Reservation Rejected";
+        $message = "Hi $name,\n\nWe regret to inform you that your reservation has been rejected. Please try booking again at another time.";
+    }
+
+    // Send Email using PHPMailer
+    $mail = new PHPMailer(true);
+    try {
+        // Server settings
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com'; 
+        $mail->SMTPAuth = true;
+        $mail->Username = 'hperformanceexhaust@gmail.com';
+        $mail->Password = 'wolv wvyy chhl rvvm';
+        $mail->SMTPSecure = 'tls';
+        $mail->Port = 587;
+        // Recipients
+        $mail->setFrom('hperformanceexhaust@gmail.com', 'Reservation System');
+        $mail->addAddress($email, $name);
+
+        // Content
+        $mail->isHTML(false);
+        $mail->Subject = $subject;
+        $mail->Body    = $message;
+
+        $mail->send();
+    } catch (Exception $e) {
+        error_log("Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
+    }
+
+    // Refresh to avoid resubmission
+    $_SESSION['success_message'] = 'Reservation Accepted! Email has been sent.';
+    header("Location: " . $_SERVER['REQUEST_URI']);
+    exit;
+
+}
+
+
+$stmt = $pdo->prepare("
+    SELECT * 
+    FROM reservations 
+    ORDER BY 
+        CASE 
+            WHEN info = 'accepted' THEN 1
+            WHEN info = 'rejected' THEN 2
+            ELSE 0 
+        END,
+        day DESC, 
+        time DESC 
+    LIMIT :limit OFFSET :offset
+");
+$stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+$stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+$stmt->execute();
+$reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 include "layout/sidebar.php";
 ?>
+
 
 <!-- Table Container -->
 <main class="p-6">
@@ -40,7 +117,7 @@ include "layout/sidebar.php";
       </thead>
       <tbody>
         <?php if (count($reservations) > 0): ?>
-          <?php foreach ($reservations as $index => $row): ?>
+         <?php foreach ($reservations as $index => $row): ?>
             <tr class="text-center border-t bg-gray-50">
               <td class="px-4 py-2 border"><?php echo $offset + $index + 1; ?></td>
               <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['name']); ?></td>
@@ -49,10 +126,35 @@ include "layout/sidebar.php";
               <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['day']); ?></td>
               <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['time']); ?></td>
               <td class="px-4 py-2 border">
+              
+              <?php if ($row['info'] === 'accepted' || $row['info'] === 'rejected'): ?>
+        <button onclick="Swal.fire('Already Processed', 'This reservation has already been <?php echo $row['info']; ?>.', 'info')" class="bg-gray-400 text-white px-3 py-1 rounded cursor-not-allowed">
+          <?php echo ucfirst($row['info']); ?>
+        </button>
+      <?php else: ?>
+        <form method="POST">
+          <input type="hidden" name="id" value="<?= $row['id']; ?>">
+          <input type="hidden" name="email" value="<?= $row['email']; ?>">
+          <input type="hidden" name="name" value="<?= $row['name']; ?>">
+
+          <button type="submit" name="accept" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">
+            Accept
+          </button>
+
+          <button type="submit" name="reject" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
+            Reject
+          </button>
+        </form>
+      <?php endif; ?>
+
+              </td>
+
+              <td class="px-4 py-2 border">
                 <?php if (!empty($row['image']) && file_exists($row['image'])): ?>
                   <img src="<?= '/uploads/' . basename($row['image']) ?>" class="w-24 h-24 object-cover rounded-md">
                 <?php endif; ?>
               </td>
+              
             </tr>
 
             <!-- Cart items -->
@@ -79,7 +181,7 @@ include "layout/sidebar.php";
                         <th class="px-2 py-1 border">Price</th>
                         <th class="px-2 py-1 border">Quantity</th>
                         <th class="px-2 py-1 border">Total</th>
-                      </tr>
+                       </tr>
                     </thead>
                     <tbody>
                       <?php foreach ($cartItems as $itemIndex => $item): ?>
@@ -120,8 +222,28 @@ include "layout/sidebar.php";
   </div>
 </main>
 
-<!-- Optional Smooth Scroll -->
+
+
+
+<!-- Add SweetAlert2 CDN if not already included -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<?php if (isset($_SESSION['success_message'])): ?>
 <script>
+Swal.fire({
+  icon: 'success',
+  title: '<?= $_SESSION['success_message'] ?>',
+  showConfirmButton: false,
+  timer: 2000
+});
+</script>
+<?php unset($_SESSION['success_message']); ?>
+<?php endif; ?>
+
+
+<script>
+
+
+
   document.addEventListener("DOMContentLoaded", function () {
     if (window.location.search.includes('page=')) {
       window.scrollTo({ top: 0, behavior: 'smooth' });

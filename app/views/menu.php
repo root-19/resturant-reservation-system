@@ -58,12 +58,23 @@ if (isset($_GET['remove_id'])) {
 
 <!-- Navbar -->
 <nav class="bg-red-600 text-white flex items-center justify-between px-6 py-4">
-    <div class="text-xl font-bold">🍴 MISAKI BISTRO</div>
-    <a href="logout" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">Logout</a>
+  <!-- Left: Logo + Brand -->
+  <div class="flex items-center space-x-2 text-xl font-bold">
+    <img src="../../resources/image/logo.jpg" alt="Logo" class="w-8 h-8 rounded-full object-cover">
+    <span>MISAKI BISTRO</span>
+  </div>
+
+  <!-- Right: Cart + Logout -->
+  <div class="flex items-center space-x-4">
     <button onclick="toggleCart()" class="bg-white text-red-600 px-4 py-2 rounded hover:bg-gray-200 transition">
-        🛒 View Cart (<?= isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0 ?>)
+      🛒 View Cart (<?= isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0 ?>)
     </button>
+    <a href="logout" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">
+      Back to home
+    </a>
+  </div>
 </nav>
+
 
 <!-- Cart Panel -->
 <div id="cartPanel" class="hidden fixed right-0 top-0 w-80 h-full bg-white shadow-lg z-50 overflow-y-auto">

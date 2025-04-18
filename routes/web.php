@@ -34,6 +34,8 @@ $routes = [
     '/admin/reservation-list' => ['view', 'admin/reservation-list', true, 'admin'],
     '/admin/resturant-map' => ['view', 'admin/resturant-map', true, 'admin'],
     '/admin/done-reservation' => ['view', 'admin/done-reservation', true, 'admin'],
+    // '/admin/handle-reservation' => ['view', 'admin/handle-reservation', true, 'admin'],
+
 
 
 ];

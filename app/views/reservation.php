@@ -53,7 +53,7 @@ $controller->handleReservation();
   <header class="bg-white shadow sticky top-0 z-10">
     <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
       <h1 class="text-xl font-bold text-red-700">Restaurant Reservation</h1>
-      <a href="logout" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">Logout</a>
+      <a href="logout" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">Back to Home</a>
     </div>
   </header>
 
