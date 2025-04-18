@@ -35,4 +35,15 @@ class User {
         $stmt = $db->prepare($query);
         return $stmt->execute([$username, $email, password_hash($password, PASSWORD_DEFAULT)]);
     }
+
+    public function updatePasswordByEmail($email, $newPassword) {
+        $db = Database::connect();
+        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+    
+        $query = "UPDATE users SET password = ? WHERE email = ?";
+        $stmt = $db->prepare($query);
+    
+        return $stmt->execute([$hashedPassword, $email]);
+    }
+    
 }

@@ -81,5 +81,39 @@ class AuthController {
         session_destroy();
         header('Location: /login');
         exit();
+
+
+    }
+
+    public function forgetPassword() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $email = $_POST['email'];
+            $newPassword = $_POST['new_password'];
+            $retypePassword = $_POST['retype_password'];
+    
+            $user = new User();
+    
+            if (!$user->emailExists($email)) {
+                $error = "Email does not exist.";
+                require_once __DIR__ . '/../../public/forget-password.php';
+                return;
+            }
+    
+            if ($newPassword !== $retypePassword) {
+                $error = "Passwords do not match.";
+                require_once __DIR__ . '/../../public/forget-password.php';
+                return;
+            }
+    
+            if ($user->updatePasswordByEmail($email, $newPassword)) {
+                $success = "Password updated successfully. You can now log in.";
+            } else {
+                $error = "Failed to update password.";
+            }
+    
+            require_once __DIR__ . '/../../public/forget-password.php';
+        } else {
+            require_once __DIR__ . '/../../public/forget-password.php';
+        }
     }
 }   

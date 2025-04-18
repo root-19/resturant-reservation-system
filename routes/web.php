@@ -13,6 +13,9 @@ $routes = [
     '/login' => [AuthController::class, 'login', false],
     '/logout' => [AuthController::class, 'logout', true],
     '/register' => [AuthController::class, 'register', false],
+  '/forget-password' => [AuthController::class, 'forgetPassword', false],
+
+
     
     // Public pages
     '/menu' => ['view', 'menu', false],

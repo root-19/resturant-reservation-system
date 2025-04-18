@@ -61,10 +61,14 @@
 
       <label class="block text-lg">Password:</label>
       <input type="password" name="password" class="w-full p-3 mb-6 border border-gray-300 rounded text-black" required>
-
+  
       <button type="submit" class="w-full bg-red-600 text-white py-3 rounded-full hover:bg-red-700 transition">
         Login
       </button>
+
+      <div class="mb-6 text-right mt-5">
+      <a href="/forget-password" class="text-sm text-blue-400 hover:underline">Forgot Password?</a>
+    </div>
     </form>
   </div>
 
