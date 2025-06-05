@@ -20,6 +20,7 @@ class MenuController {
             $price = $_POST['price'];
             $image = $_FILES['image_path'];
             $description = $_POST['description'];
+            $categoryId = $_POST['category_id'];
 
             if ($image['error'] === UPLOAD_ERR_OK) {
                 $targetDir = __DIR__ . '/../../uploads/';
@@ -32,7 +33,7 @@ class MenuController {
                 }
 
                 if (move_uploaded_file($image["tmp_name"], $targetFile)) {
-                    $this->menu->create($foodName, $price, $webPath, $description);
+                    $this->menu->create($foodName, $price, $webPath, $description, $categoryId);
                     header("Location: " . $_SERVER['REQUEST_URI']); // just refresh the page
                     exit;
                 } else {

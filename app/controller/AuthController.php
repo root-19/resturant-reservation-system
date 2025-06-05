@@ -62,7 +62,12 @@ class AuthController {
                     $_SESSION['username'] = $userData['username'];
                     $_SESSION['role'] = $userData['role']; 
                     
-                    header('Location: /dashboard');
+                    // Role-based redirection after registration
+                    if ($userData['role'] === 'admin') {
+                        header('Location: /admin/dashboard');
+                    } else {
+                        header('Location: /dashboard');
+                    }
                     exit();
                 } else {
                     $error = "Failed to register. Please try again.";

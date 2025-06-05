@@ -41,7 +41,7 @@ $controller->handleReservation();
       confirmButtonColor: '#dc2626'
     }).then((result) => {
       if (result.isConfirmed) {
-        window.location.href = 'logout'; 
+        window.location.href = 'dashboard'; 
       }
     });
   </script>
@@ -53,7 +53,7 @@ $controller->handleReservation();
   <header class="bg-white shadow sticky top-0 z-10">
     <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
       <h1 class="text-xl font-bold text-red-700">Restaurant Reservation</h1>
-      <a href="logout" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">Back to Home</a>
+      <a href="dashboard" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">Back to Home</a>
     </div>
   </header>
 
@@ -104,15 +104,7 @@ $controller->handleReservation();
             <input type="time" name="time" class="w-full border border-gray-300 p-3 rounded" required>
           </div>
 
-          <div>
-            <label class="block text-gray-700 font-medium mb-1">Your Name:</label>
-            <input type="text" name="name" class="w-full border border-gray-300 p-3 rounded" required>
-          </div>
-
-          <div>
-            <label class="block text-gray-700 font-medium mb-1">Email:</label>
-            <input type="email" name="email" class="w-full border border-gray-300 p-3 rounded" required>
-          </div>
+          <!-- Removed name and email fields since we'll use logged-in user's info -->
 
         <!-- QR Code Image Display -->
 <div class="mb-4">

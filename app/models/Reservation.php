@@ -9,8 +9,8 @@ class Reservation {
 
     public function createReservation($table_size, $day, $time, $name, $email, $image_path) {
         $stmt = $this->pdo->prepare("
-            INSERT INTO reservations (table_size, day, time, name, email, image_path)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO reservations (table_size, day, time, name, email, image_path, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, NOW())
         ");
         $stmt->execute([$table_size, $day, $time, $name, $email, $image_path]);
 

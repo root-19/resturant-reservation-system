@@ -10,7 +10,7 @@ date_default_timezone_set('Asia/Manila');
 $currentTime = date('Y-m-d H:i:s');
 
 // Query to fetch reservations including both ongoing and completed ones
-$stmt = $pdo->prepare("SELECT * FROM reservations ORDER BY day DESC, time DESC");
+$stmt = $pdo->prepare("SELECT * FROM reservations WHERE status = 'done' ORDER BY day DESC, time DESC");
 $stmt->execute();
 $reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -41,26 +41,7 @@ include "layout/sidebar.php";
                             <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['table_size']); ?> Pax</td>
                             <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['day']); ?></td>
                             <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['time']); ?></td>
-                            <td class="px-4 py-2 border">
-                                <?php
-                                // Get the reservation date and time
-                                $reservationDateTime = strtotime($row['day'] . ' ' . $row['time']);
-                                $currentDateTime = time();
-                                $remainingTime = $reservationDateTime - $currentDateTime;
-
-                                if ($remainingTime <= 3600 && $remainingTime > 0) {
-                                    // Countdown for ongoing reservation (within 1 hour)
-                                    echo 'Ongoing - Countdown: ' . gmdate("i:s", $remainingTime);
-                                } elseif ($remainingTime <= 0) {
-                                    // Mark reservation as done and update the status in the database
-                                    echo 'Done';
-                                    $updateStmt = $pdo->prepare("UPDATE reservations SET status = 'done' WHERE id = ?");
-                                    $updateStmt->execute([$row['id']]);
-                                } else {
-                                    echo 'Upcoming';
-                                }
-                                ?>
-                            </td>
+                            <td class="px-4 py-2 border">Done</td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>

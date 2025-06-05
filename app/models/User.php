@@ -29,11 +29,16 @@ class User {
     }
 
     // Register a new user
-    public function register($username, $email, $password) {
+    public function register($username, $email, $password, $role = 'user') {
         $db = Database::connect();
-        $query = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
+        $query = "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)";
         $stmt = $db->prepare($query);
-        return $stmt->execute([$username, $email, password_hash($password, PASSWORD_DEFAULT)]);
+        return $stmt->execute([
+            $username, 
+            $email, 
+            password_hash($password, PASSWORD_DEFAULT),
+            $role
+        ]);
     }
 
     public function updatePasswordByEmail($email, $newPassword) {

@@ -14,11 +14,27 @@ class ReservationController {
 
     public function handleReservation() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Check if user is logged in
+            if (!isset($_SESSION['user_id'])) {
+                $_SESSION['error'] = 'Please login to make a reservation';
+                header('Location: /login');
+                exit;
+            }
+
             $tableSize = $_POST['table_size'];
             $day = $_POST['day'];
             $time = $_POST['time'];
-            $name = $_POST['name'];
-            $email = $_POST['email'];
+
+            // Get user information from database
+            $stmt = $this->pdo->prepare("SELECT username, email FROM users WHERE id = ?");
+            $stmt->execute([$_SESSION['user_id']]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$user) {
+                $_SESSION['error'] = 'User information not found';
+                header('Location: /login');
+                exit;
+            }
 
             // Handle image upload
             $imagePath = null;
@@ -36,8 +52,15 @@ class ReservationController {
                 }
             }
 
-            // Create the reservation and get its ID
-            $reservationId = $this->reservationModel->createReservation($tableSize, $day, $time, $name, $email, $imagePath);
+            // Create the reservation using user's information
+            $reservationId = $this->reservationModel->createReservation(
+                $tableSize, 
+                $day, 
+                $time, 
+                $user['username'], 
+                $user['email'], 
+                $imagePath
+            );
 
             // Insert cart items into the database, linking them to the new reservation
             if (!empty($_SESSION['cart'])) {
@@ -56,8 +79,51 @@ class ReservationController {
             }
 
             $_SESSION['reservation_success'] = true;
-            // header("Location: /logout");
-            // exit;
+        }
+    }
+
+    public function updateReservation() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id = $_POST['id'];
+            $day = $_POST['day'];
+            $time = $_POST['time'];
+            $tableSize = $_POST['table_size'];
+
+            // Handle image upload
+            $imagePath = null;
+            if (isset($_FILES['receipt_image']) && $_FILES['receipt_image']['error'] === UPLOAD_ERR_OK) {
+                $uploadDir = 'uploads/';
+                $imageName = uniqid() . '_' . basename($_FILES['receipt_image']['name']);
+                $uploadPath = $uploadDir . $imageName;
+
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
+
+                if (move_uploaded_file($_FILES['receipt_image']['tmp_name'], $uploadPath)) {
+                    $imagePath = $uploadPath;
+                }
+            }
+
+            // Build the update query
+            if ($imagePath) {
+                $sql = "UPDATE reservations SET day = ?, time = ?, table_size = ?, image_path = ? WHERE id = ?";
+                $params = [$day, $time, $tableSize, $imagePath, $id];
+            } else {
+                $sql = "UPDATE reservations SET day = ?, time = ?, table_size = ? WHERE id = ?";
+                $params = [$day, $time, $tableSize, $id];
+            }
+
+            $stmt = $this->pdo->prepare($sql);
+            $success = $stmt->execute($params);
+
+            header('Content-Type: application/json');
+            if ($success) {
+                echo json_encode(['success' => true]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Failed to update reservation.']);
+            }
+            exit;
         }
     }
 }

@@ -6,6 +6,7 @@ use root_dev\Controller\AuthController;
 require_once __DIR__ . '/../core/Controller.php';
 require_once __DIR__ . '/../app/models/User.php';
 require_once __DIR__ . '/../app/controller/AuthController.php';
+require_once __DIR__ . '/../app/controller/ReserveController.php';
 
 // Define routes ass handler_type, action, is_protected, required_role 
 $routes = [
@@ -19,16 +20,17 @@ $routes = [
     
     // Public pages
     '/menu' => ['view', 'menu', false],
-    '/reservation' => ['view', 'reservation', false],
+    '/reservation' => ['view', 'reservation', true, 'user'],
 
 
     // Routes accessible to 'user'
     '/dashboard' => ['view', 'dashboard', true, 'user'],
     '/create-menu' => ['view', 'create-menu', true, 'user'],
     '/menu-list' => ['view', 'menu-list', true, 'user'],
-
     '/about' => ['view', 'about', true, 'user'],
     '/contact' => ['view', 'contact', true, 'user'],
+    '/checkout' => ['view', 'checkout', true, 'user'],
+
 
     // Routes accessible to 'admin'
     '/admin/dashboard' => ['view', 'admin/dashboard', true, 'admin'],
@@ -39,7 +41,8 @@ $routes = [
     '/admin/done-reservation' => ['view', 'admin/done-reservation', true, 'admin'],
     // '/admin/handle-reservation' => ['view', 'admin/handle-reservation', true, 'admin'],
 
-
+    '/reservation/update' => ['ReservationController', 'updateReservation', true, 'user'],
+    '/reservation/edit_reservation_ajax' => ['view', '../reservation/edit_reservation_ajax', true, 'user'],
 
 ];
 
@@ -73,7 +76,13 @@ if (isset($routes[$uri])) {
 
         require_once __DIR__ . "/../app/views/$action.php";
     } else {
-        $controller = new $handler();
+        if ($handler === 'ReservationController') {
+            require_once __DIR__ . '/../config/database.php';
+            $pdo = Database::connect();
+            $controller = new ReservationController($pdo);
+        } else {
+            $controller = new $handler();
+        }
         $controller->$action();
     }
 } else {
