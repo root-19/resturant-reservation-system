@@ -22,24 +22,21 @@ if (!$id || !$day || !$time || !$table_size) {
 }
 
 $image_path = null;
-if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+if (isset($_FILES['receipt']) && $_FILES['receipt']['error'] === UPLOAD_ERR_OK) {
     $uploadDir = __DIR__ . '/../uploads/';
     if (!is_dir($uploadDir)) {
         mkdir($uploadDir, 0777, true);
     }
-    $fileTmp = $_FILES['image']['tmp_name'];
-    $fileName = uniqid('img_') . '_' . basename($_FILES['image']['name']);
+
+    $fileTmp = $_FILES['receipt']['tmp_name'];
+    $fileName = uniqid('receipt_') . '_' . basename($_FILES['receipt']['name']);
     $targetFile = $uploadDir . $fileName;
-    
-    // Debug: Log file upload attempt
-    error_log("Attempting to upload file to: " . $targetFile);
     
     if (move_uploaded_file($fileTmp, $targetFile)) {
         $image_path = 'uploads/' . $fileName;
-        // error_log("File uploaded successfully. Path: " . $image_path);
     } else {
         error_log("Failed to move uploaded file. Error: " . error_get_last()['message']);
-        // echo json_encode(['success' => false, 'message' => 'Failed to upload image. Please try again.']);
+        echo json_encode(['success' => false, 'message' => 'Failed to upload receipt. Please try again.']);
         exit;
     }
 }
@@ -69,4 +66,13 @@ try {
 } catch (Exception $e) {
     error_log("Exception occurred: " . $e->getMessage());
     echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+
+
 } 
+
+
+
+
+
+
+

@@ -4,7 +4,8 @@ require_once __DIR__ . '/../../../config/database.php';
 
 $pdo = Database::connect();
 
-$stmt = $pdo->prepare("SELECT * FROM reservations WHERE status != 'pending' ORDER BY day DESC, time DESC");
+// Get all reservations including pending ones
+$stmt = $pdo->prepare("SELECT * FROM reservations WHERE status = 'accepted' OR status = 'pending' ORDER BY created_at DESC");
 $stmt->execute();
 $reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -19,12 +20,25 @@ function groupByTableSize($reservations, $size) {
     });
 }
 
+// Define table capacities
+$tableCapacities = [
+    '2 Pax Table' => 12,
+    '4 Pax Table' => 12,
+    '6 Pax Table' => 12,
+    '10 Pax Table' => 12
+];
+
 $tables = [
     '2 Pax Table' => groupByTableSize($upcoming, 2),
     '4 Pax Table' => groupByTableSize($upcoming, 4),
     '6 Pax Table' => groupByTableSize($upcoming, 6),
     '10 Pax Table' => groupByTableSize($upcoming, 10),
 ];
+
+// Function to check if table is at capacity
+function isTableAtCapacity($reservations, $capacity) {
+    return count($reservations) >= $capacity;
+}
 
 include "layout/sidebar.php";
 ?>
@@ -39,13 +53,17 @@ include "layout/sidebar.php";
         <!-- Top Tables -->
         <div class="flex justify-center flex-wrap gap-32 mb-32">
             <?php foreach (array_slice(array_keys($tables), 0, 2) as $key): ?>
-                <?php $reservationsGroup = $tables[$key]; ?>
+                <?php 
+                $reservationsGroup = $tables[$key];
+                $isAtCapacity = isTableAtCapacity($reservationsGroup, $tableCapacities[$key]);
+                $tableColor = $isAtCapacity ? 'from-red-600 to-red-700' : 'from-green-600 to-green-700';
+                ?>
                 <div class="flex flex-col items-center relative">
                     <!-- Table Box -->
-                    <div class="w-40 h-24 bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold flex items-center justify-center rounded-xl shadow-lg transform hover:scale-105 transition-transform duration-200 z-10">
+                    <div class="w-40 h-24 bg-gradient-to-r <?= $tableColor ?> text-white font-semibold flex items-center justify-center rounded-xl shadow-lg transform hover:scale-105 transition-transform duration-200 z-10">
                         <div class="text-center">
                             <div class="text-lg"><?= $key ?></div>
-                            <div class="text-sm opacity-80"><?= count($reservationsGroup) ?> Reservations</div>
+                            <div class="text-sm opacity-80"><?= count($reservationsGroup) ?>/<?= $tableCapacities[$key] ?> Reservations</div>
                         </div>
                     </div>
 
@@ -57,12 +75,13 @@ include "layout/sidebar.php";
                         <?php if (count($reservationsGroup) > 0): ?>
                             <?php foreach ($reservationsGroup as $res): ?>
                                 <div
-                                    class="w-5 h-5 bg-blue-500 rounded-full hover:bg-blue-600 cursor-pointer shadow-md transform hover:scale-110 transition-all duration-200"
+                                    class="w-5 h-5 <?= $res['image_path'] === null ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-blue-500 hover:bg-blue-600' ?> rounded-full cursor-pointer shadow-md transform hover:scale-110 transition-all duration-200"
                                     onmouseenter="showTooltip(event, <?= htmlspecialchars(json_encode([
                                         'name' => $res['name'],
                                         'email' => $res['email'],
                                         'day' => date('F d, Y', strtotime($res['day'])),
                                         'time' => date('h:i A', strtotime($res['time'])),
+                                        'status' => $res['image_path'] === null ? 'pending' : 'accepted'
                                     ])) ?>)"
                                     onmouseleave="hideTooltip()"
                                 ></div>
@@ -78,13 +97,17 @@ include "layout/sidebar.php";
         <!-- Bottom Tables -->
         <div class="flex justify-center flex-wrap gap-32">
             <?php foreach (array_slice(array_keys($tables), 2, 2) as $key): ?>
-                <?php $reservationsGroup = $tables[$key]; ?>
+                <?php 
+                $reservationsGroup = $tables[$key];
+                $isAtCapacity = isTableAtCapacity($reservationsGroup, $tableCapacities[$key]);
+                $tableColor = $isAtCapacity ? 'from-red-600 to-red-700' : 'from-green-600 to-green-700';
+                ?>
                 <div class="flex flex-col items-center relative">
                     <!-- Table Box -->
-                    <div class="w-40 h-24 bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold flex items-center justify-center rounded-xl shadow-lg transform hover:scale-105 transition-transform duration-200 z-10">
+                    <div class="w-40 h-24 bg-gradient-to-r <?= $tableColor ?> text-white font-semibold flex items-center justify-center rounded-xl shadow-lg transform hover:scale-105 transition-transform duration-200 z-10">
                         <div class="text-center">
                             <div class="text-lg"><?= $key ?></div>
-                            <div class="text-sm opacity-80"><?= count($reservationsGroup) ?> Reservations</div>
+                            <div class="text-sm opacity-80"><?= count($reservationsGroup) ?>/<?= $tableCapacities[$key] ?> Reservations</div>
                         </div>
                     </div>
 
@@ -96,12 +119,13 @@ include "layout/sidebar.php";
                         <?php if (count($reservationsGroup) > 0): ?>
                             <?php foreach ($reservationsGroup as $res): ?>
                                 <div
-                                    class="w-5 h-5 bg-blue-500 rounded-full hover:bg-blue-600 cursor-pointer shadow-md transform hover:scale-110 transition-all duration-200"
+                                    class="w-5 h-5 <?= $res['image_path'] === null ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-blue-500 hover:bg-blue-600' ?> rounded-full cursor-pointer shadow-md transform hover:scale-110 transition-all duration-200"
                                     onmouseenter="showTooltip(event, <?= htmlspecialchars(json_encode([
                                         'name' => $res['name'],
                                         'email' => $res['email'],
                                         'day' => date('F d, Y', strtotime($res['day'])),
                                         'time' => date('h:i A', strtotime($res['time'])),
+                                        'status' => $res['image_path'] === null ? 'pending' : 'accepted'
                                     ])) ?>)"
                                     onmouseleave="hideTooltip()"
                                 ></div>
@@ -137,6 +161,12 @@ include "layout/sidebar.php";
                 </svg>
                 <p class="text-gray-600"><span id="tooltipTime"></span></p>
             </div>
+            <div class="flex items-center space-x-2">
+                <svg class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p class="text-gray-600"><span id="tooltipStatus"></span></p>
+            </div>
         </div>
     </div>
 </main>
@@ -146,11 +176,13 @@ include "layout/sidebar.php";
     const nameEl = document.getElementById("tooltipName");
     const dayEl = document.getElementById("tooltipDay");
     const timeEl = document.getElementById("tooltipTime");
+    const statusEl = document.getElementById("tooltipStatus");
 
     function showTooltip(e, data) {
         nameEl.textContent = data.name;
         dayEl.textContent = data.day;
         timeEl.textContent = data.time;
+        statusEl.textContent = data.status;
 
         tooltip.classList.remove("hidden");
         tooltip.classList.add("opacity-100");

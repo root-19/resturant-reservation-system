@@ -10,7 +10,7 @@ date_default_timezone_set('Asia/Manila');
 $currentTime = date('Y-m-d H:i:s');
 
 // Query to fetch reservations including both ongoing and completed ones
-$stmt = $pdo->prepare("SELECT * FROM reservations WHERE status = 'done' ORDER BY day DESC, time DESC");
+$stmt = $pdo->prepare("SELECT * FROM reservations WHERE status = 'accepted' ORDER BY day DESC, time DESC");
 $stmt->execute();
 $reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
