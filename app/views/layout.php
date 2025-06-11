@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $title ?? 'Restaurant Reservation'; ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
             --primary-red: #dc3545;
@@ -59,38 +59,42 @@
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <div class="d-flex align-items-center">
-                <img src="/resources/image/logo.jpg" alt="Logo" class="brand-logo">
-                <span class="brand-name text-white">MISAKI BISTRO</span>
+    <nav class="bg-red-600 p-4">
+        <div class="container mx-auto flex items-center justify-between">
+            <div class="flex items-center">
+                <img src="/resources/image/logo.jpg" alt="Logo" class="w-8 h-8 rounded-full object-cover">
+                <span class="text-white text-xl font-bold ml-2">MISAKI BISTRO</span>
             </div>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="block lg:hidden">
+                <button class="text-white focus:outline-none">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-4 6h4"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="hidden lg:flex lg:items-center lg:w-auto" id="navbarNav">
                 <?php if (isset($navItems)): ?>
-                <ul class="navbar-nav me-auto">
+                <ul class="flex items-center space-x-4">
                     <?php foreach ($navItems as $item): ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?php echo $item['url']; ?>"><?php echo $item['text']; ?></a>
+                    <li>
+                        <a class="text-white hover:text-red-300 transition duration-300" href="<?php echo $item['url']; ?>"><?php echo $item['text']; ?></a>
                     </li>
                     <?php endforeach; ?>
                 </ul>
                 <?php endif; ?>
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/logout">Logout</a>
+                <ul class="flex items-center space-x-4 ml-4">
+                    <li>
+                        <a class="text-white hover:text-red-300 transition duration-300" href="/logout">Logout</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
+    <div class="container mx-auto mt-4 px-4">
         <?php if (isset($content)) echo $content; ?>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
 </body>
 </html> 

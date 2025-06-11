@@ -28,6 +28,31 @@ $rejectedCount = $pdo->query("SELECT COUNT(*) FROM reservations WHERE info = 're
 // Total Revenue
 $totalRevenue = $reservationRevenue + $foodRevenue;
 
+// Get monthly revenue data
+$monthlyRevenueStmt = $pdo->query("
+    SELECT 
+        DATE_FORMAT(event_date, '%Y-%m') as month,
+        SUM(CASE 
+            WHEN type = 'reservation' THEN amount
+            ELSE 0 
+        END) as reservation_revenue,
+        SUM(CASE 
+            WHEN type = 'food_order' THEN amount
+            ELSE 0 
+        END) as food_revenue
+    FROM (
+        SELECT 'reservation' as type, created_at as event_date, 300 as amount
+        FROM reservations
+        WHERE info = 'accepted'
+        UNION ALL
+        SELECT 'food_order' as type, day as event_date, total_price as amount
+        FROM cart_items
+    ) combined
+    GROUP BY DATE_FORMAT(event_date, '%Y-%m')
+    ORDER BY month ASC
+");
+$monthlyRevenue = $monthlyRevenueStmt->fetchAll(PDO::FETCH_ASSOC);
+
 // Get all reservations (no pagination)
 $stmt = $pdo->prepare("
     SELECT * 
@@ -48,6 +73,9 @@ include "layout/sidebar.php";
 ?>
 
 <div class="p-6">
+    <!-- Add Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
 
         <div class="bg-blue-100 p-4 rounded shadow flex items-center">
@@ -127,4 +155,51 @@ include "layout/sidebar.php";
         </div>
 
     </div>
+
+    <!-- Monthly Revenue Chart -->
+    <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+        <h2 class="text-xl font-semibold mb-4">Monthly Revenue Overview</h2>
+        <canvas id="revenueChart" height="100"></canvas>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        const monthlyData = <?= json_encode($monthlyRevenue) ?>;
+        console.log('Monthly Revenue Data:', monthlyData);
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: monthlyData.map(item => item.month),
+                datasets: [{
+                    label: 'Total Revenue',
+                    data: monthlyData.map(item => 
+                        parseFloat(item.reservation_revenue) + parseFloat(item.food_revenue)
+                    ),
+                    borderColor: 'rgb(99, 102, 241)',
+                    tension: 0.1,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Monthly Revenue Trend'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '₱' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
 </div>
