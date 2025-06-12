@@ -54,7 +54,7 @@ class AuthController {
     
             if ($user->emailExists($email)) {
                 $error = "Email is already registered.";
-                require_once __DIR__ . '/../views/register.php';
+                require_once __DIR__ . '/../../public/register.php';
             } else {
                 if ($user->register($username, $email, $password, $role)) {
                     $userData = $user->getUserByEmail($email);
