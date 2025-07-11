@@ -2,6 +2,10 @@
 
 require_once __DIR__ . '/../models/Reservation.php';
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 class ReservationController {
     private $reservationModel;
@@ -10,6 +14,46 @@ class ReservationController {
     public function __construct($pdo) {
         $this->reservationModel = new Reservation($pdo);
         $this->pdo = $pdo;
+    }
+
+    private function sendEmailNotification($to, $name, $subject, $message) {
+        $mail = new PHPMailer(true);
+        $emailSent = false;
+        
+        try {
+            // Server settings
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com'; 
+            $mail->SMTPAuth = true;
+            $mail->Username = 'hperformanceexhaust@gmail.com';
+            $mail->Password = 'wolv wvyy chhl rvvm';
+            $mail->SMTPSecure = 'tls';
+            $mail->Port = 587;
+            
+            // Recipients
+            $mail->setFrom('hperformanceexhaust@gmail.com', 'Restaurant Reservation System');
+            $mail->addAddress($to, $name);
+
+            // Content
+            $mail->isHTML(false);
+            $mail->Subject = $subject;
+            $mail->Body = $message;
+
+            // Send the email
+            $emailSent = $mail->send();
+            
+            if ($emailSent) {
+                error_log("Email sent successfully to: $to");
+            } else {
+                error_log("Failed to send email to: $to");
+            }
+            
+        } catch (Exception $e) {
+            error_log("Email sending failed for: $to, Error: " . $e->getMessage());
+            error_log("PHPMailer Error: {$mail->ErrorInfo}");
+        }
+        
+        return $emailSent;
     }
 
     public function handleReservation() {
@@ -78,6 +122,19 @@ class ReservationController {
                 unset($_SESSION['cart']);
             }
 
+            // Send confirmation email to user
+            $subject = "Reservation Confirmation";
+            $message = "Hi {$user['username']},\n\nYour reservation has been successfully created!\n\n";
+            $message .= "Reservation Details:\n";
+            $message .= "Date: " . date('F d, Y', strtotime($day)) . "\n";
+            $message .= "Time: " . date('h:i A', strtotime($time)) . "\n";
+            $message .= "Table Size: $tableSize Pax\n";
+            $message .= "Reservation ID: $reservationId\n\n";
+            $message .= "Your reservation is currently pending approval. You will receive another email once it's confirmed.\n\n";
+            $message .= "Thank you for choosing our restaurant!";
+
+            $this->sendEmailNotification($user['email'], $user['username'], $subject, $message);
+
             $_SESSION['reservation_success'] = true;
         }
     }
@@ -88,6 +145,11 @@ class ReservationController {
             $day = $_POST['day'];
             $time = $_POST['time'];
             $tableSize = $_POST['table_size'];
+
+            // Get user information for email notification
+            $stmt = $this->pdo->prepare("SELECT name, email FROM reservations WHERE id = ?");
+            $stmt->execute([$id]);
+            $reservation = $stmt->fetch(PDO::FETCH_ASSOC);
 
             // Handle image upload
             $imagePath = null;
@@ -116,6 +178,27 @@ class ReservationController {
 
             $stmt = $this->pdo->prepare($sql);
             $success = $stmt->execute($params);
+
+            // Send email notification if update was successful
+            if ($success && $reservation) {
+                $subject = "Reservation Updated";
+                $message = "Hi {$reservation['name']},\n\nYour reservation has been updated successfully!\n\n";
+                $message .= "Updated Reservation Details:\n";
+                $message .= "Date: " . date('F d, Y', strtotime($day)) . "\n";
+                $message .= "Time: " . date('h:i A', strtotime($time)) . "\n";
+                $message .= "Table Size: $tableSize Pax\n";
+                $message .= "Reservation ID: $id\n\n";
+                
+                if ($imagePath) {
+                    $message .= "Receipt uploaded successfully. Your reservation is now pending approval.\n\n";
+                } else {
+                    $message .= "Reservation details updated. Please upload your receipt to complete the process.\n\n";
+                }
+                
+                $message .= "Thank you!";
+
+                $this->sendEmailNotification($reservation['email'], $reservation['name'], $subject, $message);
+            }
 
             header('Content-Type: application/json');
             if ($success) {

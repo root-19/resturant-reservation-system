@@ -73,8 +73,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $subject = "Reservation Accepted";
         $message = "Hi $name,\n\nYour reservation has been accepted. Your table number is: $tableNumber. We look forward to serving you!";
 
-        // Send Email using PHPMailer
+        // Send Email using PHPMailer with better error handling
         $mail = new PHPMailer(true);
+        $emailSent = false;
+        
         try {
             // Server settings
             $mail->isSMTP();
@@ -84,6 +86,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mail->Password = 'wolv wvyy chhl rvvm';
             $mail->SMTPSecure = 'tls';
             $mail->Port = 587;
+            
+            // Enable debugging
+            $mail->SMTPDebug = 0; // Set to 2 for debugging
+            
             // Recipients
             $mail->setFrom('hperformanceexhaust@gmail.com', 'Reservation System');
             $mail->addAddress($email, $name);
@@ -91,27 +97,79 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Content
             $mail->isHTML(false);
             $mail->Subject = $subject;
-            $mail->Body    = $message;
+            $mail->Body = $message;
 
-            $mail->send();
+            // Send the email
+            $emailSent = $mail->send();
+            
+            if ($emailSent) {
+                error_log("Email sent successfully to: $email");
+                $_SESSION['success_message'] = 'Reservation accepted and email notification sent!';
+            } else {
+                error_log("Failed to send email to: $email");
+                $_SESSION['success_message'] = 'Reservation accepted but email notification failed.';
+            }
+            
         } catch (Exception $e) {
-            error_log("Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
+            error_log("Email sending failed for reservation ID: $reservationId, Email: $email, Error: " . $e->getMessage());
+            error_log("PHPMailer Error: {$mail->ErrorInfo}");
+            $_SESSION['success_message'] = 'Reservation accepted but email notification failed.';
         }
+        
     } elseif (isset($_POST['reject'])) {
         $updateStmt = $pdo->prepare("UPDATE reservations SET status = 'rejected' WHERE id = ?");
         $updateStmt->execute([$reservationId]);
-        // No email notification for rejected reservations
+        
+        // Send rejection email notification
+        $subject = "Reservation Status Update";
+        $message = "Hi $name,\n\nWe regret to inform you that your reservation has been rejected. Please contact us for more information.";
+        
+        $mail = new PHPMailer(true);
+        $emailSent = false;
+        
+        try {
+            // Server settings
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com'; 
+            $mail->SMTPAuth = true;
+            $mail->Username = 'hperformanceexhaust@gmail.com';
+            $mail->Password = 'wolv wvyy chhl rvvm';
+            $mail->SMTPSecure = 'tls';
+            $mail->Port = 587;
+            
+            // Recipients
+            $mail->setFrom('hperformanceexhaust@gmail.com', 'Reservation System');
+            $mail->addAddress($email, $name);
+
+            // Content
+            $mail->isHTML(false);
+            $mail->Subject = $subject;
+            $mail->Body = $message;
+
+            // Send the email
+            $emailSent = $mail->send();
+            
+            if ($emailSent) {
+                error_log("Rejection email sent successfully to: $email");
+                $_SESSION['success_message'] = 'Reservation rejected and email notification sent!';
+            } else {
+                error_log("Failed to send rejection email to: $email");
+                $_SESSION['success_message'] = 'Reservation rejected but email notification failed.';
+            }
+            
+        } catch (Exception $e) {
+            error_log("Rejection email sending failed for reservation ID: $reservationId, Email: $email, Error: " . $e->getMessage());
+            $_SESSION['success_message'] = 'Reservation rejected but email notification failed.';
+        }
     }
 
     // Refresh to avoid resubmission
-    $_SESSION['success_message'] = 'Reservation status updated!';
     if (isset($_POST['reject'])) {
         header("Location: ?status=rejected");
     } else {
         header("Location: " . $_SERVER['REQUEST_URI']);
     }
     exit;
-
 }
 
 include "layout/sidebar.php";
